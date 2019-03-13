@@ -104,8 +104,8 @@ class MapNode implements Comparable<MapNode> //when implementing comparable, you
     //if a negative value is returned, it knows to bubble up the value until it is inserted
     //in a position where it is smaller than all of its children, but  larger than all of its parents.
     public int compareTo(MapNode otherNode) {
-        //you need to cast it as a double so you can treat this as the expected type Double when comparing
-        return ((Double)this.getDistance()).compareTo(otherNode.getDistance());
+        //you need to cast it as a double so you can treat this as the expected type Double when comparing, because above,compareTo returns an int
+        return ((Double)this.getDistance()).compareTo((Double)otherNode.getDistance());
     }
 
 

@@ -24,6 +24,7 @@ public class MapGraph {
     /**
      * Create a new empty MapGraph
      */
+
     public MapGraph()
     {
         pointNodeMap = new HashMap<>();
@@ -94,6 +95,7 @@ public class MapGraph {
      *   added as nodes to the graph, if any of the arguments is null,
      *   or if the length is less than 0.
      */
+
     public void addEdge(GeographicPoint from, GeographicPoint to, String roadName,
                         String roadType, double length) throws IllegalArgumentException {
 
@@ -372,114 +374,12 @@ public class MapGraph {
             }
         }
         if (!currNode.equals(endNode)) {
-            System.out.println("No path found from " +start+ " to " + goal);
             return 0;
         }
-        System.out.println("Nodes Visited A Star: "+visited.size());
         //return the reconstructed path
         return reconstructPathExtension(parentMap, startNode, endNode);
     }
-
-
-    //refactored out
-    private double reconstructPathExtension(HashMap<MapNode,
-            MapNode> parentMap, MapNode start, MapNode goal) {
-        //we only need distance now
-        //LinkedList<GeographicPoint> path = new LinkedList<GeographicPoint>();
-        MapNode current = goal;
-        MapNode next = null;
-        double distance= 0;
-        while (!current.equals(start)) {
-            //we are not needing this path, we only need distance now
-            //path.addFirst(current.getLocation());
-            next = parentMap.get(current);
-            //ystem.out.println(current.getLocation().distance(next.getLocation()));
-            //track distance of the current nodes
-            distance = distance + current.getLocation().distance(next.getLocation());
-            current = next;
-        }
-        // we only need distance now
-        //path.addFirst(start.getLocation());
-        return distance;
-    }
-
-
-
-    //TODO Greedy algorithm 2-OPT
-    //
-    public List<GeographicPoint> tspPath2Opt(HashSet<GeographicPoint> tspNodeSet,
-    GeographicPoint start) {
-        LinkedList<GeographicPoint> optimalPath = new LinkedList<>();
-        HashSet<MapNode> visited = new HashSet<>();
-        MapNode closestNextNode = null;
-        Double currMinDistance = Double.POSITIVE_INFINITY;
-
-        MapNode currNode =pointNodeMap.get(start);
-
-        //run tsp TODO
-        //ListsPa(tspNodeSet, start);
-        //swap 2 edges and see if we get a shorter path
-        //if we do save the path
-        //run the tsp again
-
-        return new LinkedList<>();
-    }
-
-
-    public List<GeographicPoint> tspPath(HashSet<GeographicPoint> tspNodeSet,
-                                         GeographicPoint start) {
-        //to track comparable shortest distances between edges
-        LinkedList<GeographicPoint> optimalPath = new LinkedList<>();
-        HashSet<MapNode> visited = new HashSet<>();
-        MapNode closestNextNode = null;
-        Double currMinDistance = Double.POSITIVE_INFINITY;
-
-        MapNode currNode = pointNodeMap.get(start); //make currNode begin with start
-        //begin logic, we will do this the size of the map, and go to the next node with shortest edge
-
-        //you may uncomment this if you want to solve for a Hamiltonian path with a greedy algorithm approach
-        //Note: the list will be a Hamiltonian cycle if you uncomment this.
-        //if you want, you can call aStarSearchExtension on the final edge
-        //GeographicPoint lastPoint = optimalPath.getLast();
-        // double finalEdge = aStarSearchExtension(lastPoint,start);
-        optimalPath.addLast(start);
-        for (int i = 0; i < tspNodeSet.size()+1; i++) {
-            for (GeographicPoint gp : tspNodeSet){
-                MapNode nextNode = pointNodeMap.get(gp);
-
-                //get an endNode from currNode according to current edge we are looking at
-                //get the distance of the edge using adjusted aStarSearch Aglorithm (serves no purpose for simplemapgraph)
-                double edgeLength = aStarSearchExtension(currNode.getLocation(), nextNode.getLocation());
-
-                    /*testing: edgeLength was returing null
-                    System.out.println(nextNode.getLocation()+" " + edgeLength);
-                    System.out.println(length);
-                    end testing: solution: don't check the data of an edge, just use aStar for that
-                    */
-
-                //if the edge is less than current min and the edge doesn't lead to a node we already seen, do the following
-                if (edgeLength < currMinDistance && !visited.contains(nextNode)) {
-                    //set minEdge = aEdge (this always happens atleast 1 time because currMinD is set to infinity)
-                    closestNextNode = nextNode;
-                    //set currMinD to the edgelength
-                    currMinDistance = edgeLength;
-                  //  tspNodeSet.remove(gp); //so that we don't have to
-                }
-            }
-            System.out.println("Currrent currMinDistance:"+currMinDistance);
-            System.out.println("Current currNode looked at: "+currNode);
-            currMinDistance = Double.POSITIVE_INFINITY; //reset our currMinDistance between nodes
-            optimalPath.add(currNode.getLocation());
-            currNode = closestNextNode; //the currNode is now the node at the end of our edge
-            visited.add(currNode); //we can add the currNode to visited now
-            System.out.println("\n"+"\n"+"\n");//so we can have a separator for debug
-        }
-        //because the last node we visit is going to be directly to the start again.
-
-
-        return optimalPath;
-    }
-
+    //helper
     //Refactoring a big piece of a function into this smaller function:
     // Steps
     //helper methods for both of my A* implementations
@@ -515,6 +415,64 @@ public class MapGraph {
         }
         //for each edge connected to the currNode
     }
+
+    public List<GeographicPoint> tspPath(HashSet<GeographicPoint> tspNodeSet,
+                                         GeographicPoint start) {
+        //to track comparable shortest distances between edges
+        LinkedList<GeographicPoint> optimalPath = new LinkedList<>();
+        HashSet<MapNode> visited = new HashSet<>();
+        MapNode closestNextNode = null;
+        Double currMinDistance = Double.POSITIVE_INFINITY;
+
+        MapNode currNode = pointNodeMap.get(start); //make currNode begin with start
+        for (int i = 0; i < tspNodeSet.size()+1; i++) {
+            for (GeographicPoint gp : tspNodeSet){
+                MapNode nextNode = pointNodeMap.get(gp);
+                //get an endNode from currNode according to current edge we are looking at
+                //get the distance of the edge using adjusted aStarSearch Aglorithm (serves no purpose for simplemapgraph)
+                double edgeLength = aStarSearchExtension(currNode.getLocation(), nextNode.getLocation());
+                //if the edge is less than current min and the edge doesn't lead to a node we already seen, do the following
+                if (edgeLength < currMinDistance && !visited.contains(nextNode)) {
+                    //set minEdge = aEdge (this always happens atleast 1 time because currMinD is set to infinity)
+                    closestNextNode = nextNode;
+                    //set currMinD to the edgelength
+                    currMinDistance = edgeLength;
+                  //  tspNodeSet.remove(gp); //so that we don't have to
+                }
+            }
+            currMinDistance = Double.POSITIVE_INFINITY; //reset our currMinDistance between nodes
+            optimalPath.add(currNode.getLocation());
+            currNode = closestNextNode; //the currNode is now the node at the end of our edge
+            visited.add(currNode); //we can add the currNode to visited now
+        }
+        //so I'm getting smarter, but where is the heuristic?
+        optimalPath.addLast(start);
+        //because the last node we visit is going to be directly to the start again.
+        return optimalPath;
+    }
+
+    //refactored out
+    private double reconstructPathExtension(HashMap<MapNode,
+            MapNode> parentMap, MapNode start, MapNode goal) {
+        //we only need distance now
+        //LinkedList<GeographicPoint> path = new LinkedList<GeographicPoint>();
+        MapNode current = goal;
+        MapNode next = null;
+        double distance= 0;
+        while (!current.equals(start)) {
+            //we are not needing this path, we only need distance now
+            //path.addFirst(current.getLocation());
+            next = parentMap.get(current);
+            //ystem.out.println(current.getLocation().distance(next.getLocation()));
+            //track distance of the current nodes
+            distance = distance + current.getLocation().distance(next.getLocation());
+            current = next;
+        }
+        // we only need distance now
+        //path.addFirst(start.getLocation());
+        return distance;
+    }
+    //refactored out
     public boolean checkPoints(GeographicPoint start, GeographicPoint goal) {
         // Setup - check validity of inputs
         if (start == null || goal == null)
@@ -551,53 +509,6 @@ public class MapGraph {
         }};
 
         System.out.println(simpleTestMap.tspPath(tsp,testStart));   //so far, print statements inside function
-
-
-        //advanced use of TSP algorithm on longitude and latitude map
-        MapGraph testMap = new MapGraph();
-        GraphLoader.loadRoadMap("data/maps/utc.map", testMap);
-        //initialize start and end
-        GeographicPoint testStart1 = new GeographicPoint(32.869423, -117.220917);
-        GeographicPoint testEnd1 = new GeographicPoint(32.869255, -117.216927);
-        //initialize a set
-        HashSet<GeographicPoint>tspLonLat = new HashSet<GeographicPoint>() {{
-            add(testEnd1);
-        }};
-        int count = 0;
-        for (GeographicPoint geographicPoint : testMap.tspPath(tspLonLat, testStart1)) {
-            System.out.println(count+1);
-            System.out.println(geographicPoint);
-            count++;
-        }
-
-        /*
-  1     System.out.println("Test 1 using simpletest: Dijkstra should be 9 and AStar should be 5");
-        List<GeographicPoint> testroute = simpleTestMap.dijkstra(testStart,testEnd);
-        List<GeographicPoint> testroute2 = simpleTestMap.aStarSearch(testStart,testEnd);
-
-
-        MapGraph testMap = new MapGraph();
-        GraphLoader.loadRoadMap("data/maps/utc.map", testMap);
-
-        // A very simple test using real data
-        testStart = new GeographicPoint(32.869423, -117.220917);
-        testEnd = new GeographicPoint(32.869255, -117.216927);
-        System.out.println("Test 2 using utc: Dijkstra should be 13 and AStar should be 5");
-        testroute = testMap.dijkstra(testStart,testEnd);
-        testroute2 = testMap.aStarSearch(testStart,testEnd);
-
-
-        // A slightly more complex test using real data
-        testStart = new GeographicPoint(32.8674388, -117.2190213);
-        testEnd = new GeographicPoint(32.8697828, -117.2244506);
-        System.out.println("Test 3 using utc: Dijkstra should be 37 and AStar should be 10");
-        testroute = testMap.dijkstra(testStart,testEnd);
-        testroute2 = testMap.aStarSearch(testStart,testEnd);
-
-        // A slightly more complex test using real data
-        testStart = new GeographicPoint(32.8674388, -117.2190213);
-        testEnd = new GeographicPoint(32.8697828, -117.2244506);
-        */
 
 
     }
