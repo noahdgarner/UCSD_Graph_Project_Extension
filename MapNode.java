@@ -12,18 +12,21 @@ import static java.lang.Double.*;
 
 /**
  * @author Noah Garner
- *
+ * <p>
  * Class representing a vertex (or node) in our MapGraph
- *
  */
 class MapNode implements Comparable<MapNode> //when implementing comparable, your comparing an object against another
 {                                                                                //of the same kind
-    /** The list of edges out of this node */
+    /**
+     * The list of edges out of this node
+     */
     private HashSet<MapEdge> edges;
 
     private boolean isStart = false;
 
-    /** the latitude and longitude of this node */
+    /**
+     * the latitude and longitude of this node
+     */
     private GeographicPoint location;
 
     private double actualDistance; //starts at infinity.
@@ -40,10 +43,10 @@ class MapNode implements Comparable<MapNode> //when implementing comparable, you
 
     /**
      * Create a new MapNode at a given Geographic location
+     *
      * @param loc the location of this node
      */
-    MapNode(GeographicPoint loc)
-    {
+    MapNode(GeographicPoint loc) {
         this.location = loc;
         this.edges = new HashSet<>();
         //we need this
@@ -53,19 +56,19 @@ class MapNode implements Comparable<MapNode> //when implementing comparable, you
 
     /**
      * Add an edge that is outgoing from this node in the graph
+     *
      * @param edge The edge to be added
      */
-    void addEdge(MapEdge edge)
-    {
+    void addEdge(MapEdge edge) {
         edges.add(edge);
     }
 
     /**
      * Return the neighbors of this MapNode
+     *
      * @return a set containing all the neighbors of this node
      */
-    Set<MapNode> getNeighbors()
-    {
+    Set<MapNode> getNeighbors() {
         Set<MapNode> neighbors = new HashSet<MapNode>();
         for (MapEdge edge : edges) {
             neighbors.add(edge.getOtherNode(this));
@@ -75,19 +78,19 @@ class MapNode implements Comparable<MapNode> //when implementing comparable, you
 
     /**
      * Get the geographic location that this node represents
+     *
      * @return the geographic location of this node
      */
-    GeographicPoint getLocation()
-    {
+    GeographicPoint getLocation() {
         return location;
     }
 
     /**
      * return the edges out of this node
+     *
      * @return a set contianing all the edges out of this node.
      */
-    Set<MapEdge> getEdges()
-    {
+    Set<MapEdge> getEdges() {
         return edges;
     }
 
@@ -103,25 +106,26 @@ class MapNode implements Comparable<MapNode> //when implementing comparable, you
     //DEFAULT COMPARETO METHOD IN JAVA IS IMPLEMENTED AS MIN HEAP!!!!
     //if a negative value is returned, it knows to bubble up the value until it is inserted
     //in a position where it is smaller than all of its children, but  larger than all of its parents.
-    public int compareTo(MapNode otherNode) {
+    public int compareTo(MapNode thatNode) {
         //you need to cast it as a double so you can treat this as the expected type Double when comparing, because above,compareTo returns an int
-        return ((Double)this.getDistance()).compareTo((Double)otherNode.getDistance());
+        return (int) (this.getDistance() - thatNode.getDistance());
     }
 
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         //this is so we cannot call .equals on anything else but a MapNode
         if (!(o instanceof MapNode) || (o == null)) {
             return false;
         }
-        MapNode node = (MapNode)o;
+        MapNode node = (MapNode) o;
         return node.location.equals(this.location);
     }
 
-    /** Because we compare nodes using their location, we also
+    /**
+     * Because we compare nodes using their location, we also
      * may use their location for HashCode.
+     *
      * @return The HashCode for this node, which is the HashCode for the
      * underlying point
      */
@@ -133,18 +137,16 @@ class MapNode implements Comparable<MapNode> //when implementing comparable, you
     //think specifically for maps and hashsets only.
     //if still confused see this link:
     // https://stackoverflow.com/questions/2265503/why-do-i-need-to-override-the-equals-and-hashcode-methods-in-java
-    public int hashCode()
-    {
+    public int hashCode() {
         return location.hashCode();
     }
 
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         String toReturn = "[NODE at location (" + location + ")";
         toReturn += " intersects streets: ";
-        for (MapEdge e: edges) {
+        for (MapEdge e : edges) {
             toReturn += e.getRoadName() + ", ";
         }
         toReturn += "]";
@@ -152,10 +154,9 @@ class MapNode implements Comparable<MapNode> //when implementing comparable, you
     }
 
     // For debugging, output roadNames as a String.
-    public String roadNamesAsString()
-    {
+    public String roadNamesAsString() {
         String toReturn = "(";
-        for (MapEdge e: edges) {
+        for (MapEdge e : edges) {
             toReturn += e.getRoadName() + ", ";
         }
         toReturn += ")";

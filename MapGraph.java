@@ -18,6 +18,10 @@ public class MapGraph {
     // Maintain both nodes and edges as you will need to
     // be able to look up nodes by lat/lon or by roads
     // that contain those nodes.
+
+    //utilizes a modified adjacency list implementation
+    //this is so we can get faster lookup times.
+    //the hashmap essentially replaces the list
     private HashMap<GeographicPoint,MapNode> pointNodeMap; //geo point takes a long/lat as key, and the value is node
     private HashSet<MapEdge> edges;
 
@@ -79,6 +83,7 @@ public class MapGraph {
             return true;
         }
         else {
+            System.out.println("That is already in the graph");
             return false;
         }
     }
@@ -110,6 +115,8 @@ public class MapGraph {
 
         MapEdge edge = new MapEdge(roadName, roadType, n1, n2, length);
         edges.add(edge);
+        //oh my god im missing this line. after we add an edge to the graph, we also need to add an edge between nodes.
+        //that way, our graph class knows about it, and the node class knows about it.
         n1.addEdge(edge);
 
     }
@@ -281,40 +288,40 @@ public class MapGraph {
         if (!checkPoints(start, goal)) return null; //send to our check function
         //check went through, lets make our MapNodes out of our geo points so we can traverse from the s -> g
         MapNode startNode = pointNodeMap.get(start);
-        MapNode endNode =pointNodeMap.get(goal);
+        MapNode endNode = pointNodeMap.get(goal);
         //initialize data structures'
         PriorityQueue<MapNode> pq = new PriorityQueue<>(); //implemented as a min-heap, the compareTo method is called with each addition
-        HashMap<MapNode,MapNode> parentMap = new HashMap<>();
+        HashMap<MapNode, MapNode> parentMap = new HashMap<>();
         HashSet<MapNode> visited = new HashSet<>();
         //so we can re-initialize if needed, all nodes in a weighted graph using Dikstra and A* must start at infinity
-        for (MapNode nodeToInitialize : pointNodeMap.values()){
+        for (MapNode nodeToInitialize : pointNodeMap.values()) {
             nodeToInitialize.setDistance(Double.POSITIVE_INFINITY);
             nodeToInitialize.setActualDistance(Double.POSITIVE_INFINITY);
         }
-
         //initialize start of our procedure
         startNode.setActualDistance(0.0);//remember the start has no weight!
         startNode.setDistance(0.0);
         pq.add(startNode); //we want to add the start  to queue to begin algorithm
         MapNode currNode = null; //establish a node that will be used for traversing the graph
         //while there are nodesi n queue
-        while(!pq.isEmpty()) {
+        while (!pq.isEmpty()) {
             currNode = pq.remove();
             nodeSearched.accept(currNode.getLocation()); //for visualization
             //if it has not been visited
-            if(!visited.contains(currNode)) {
+            if (!visited.contains(currNode)) {
                 visited.add(currNode);
                 //if it is the end, break out and reconstruct the path, otherwise continue to creating set
                 if (currNode.equals(endNode)) //to stop the while loop
                     break; //done, leave function
                 visitAStar(visited, currNode, goal, parentMap, pq);
             }
+            System.out.println("shit intellij is smarter than me.");
         }
         if (!currNode.equals(endNode)) {
-            System.out.println("No path found from " +start+ " to " + goal);
+            System.out.println("No path found from " + start + " to " + goal);
             return null;
         }
-        System.out.println("Nodes Visited A Star: "+visited.size());
+        System.out.println("Nodes Visited A Star: " + visited.size());
         //return the reconstructed path
         return reconstructPath(parentMap, startNode, endNode);
     }
@@ -497,6 +504,7 @@ public class MapGraph {
         MapGraph simpleTestMap = new MapGraph();
         GraphLoader.loadRoadMap("data/testdata/simpletest.map", simpleTestMap);
 
+        //these are just random points that thus far have nothing to do with our graph, until we put them into a set and set to a function
         GeographicPoint testStart = new GeographicPoint(4.0, 1.0); //this is startnode in tsp function
         GeographicPoint testPoint1 = new GeographicPoint(5.0, 1.0);
         GeographicPoint testPoint2= new GeographicPoint(4.0, 0.0);
@@ -507,6 +515,15 @@ public class MapGraph {
            add(testPoint2);
            add(testPoint3);
         }};
+
+        //oh. thats how this works. I'm a retard
+        Iterator<Map.Entry<GeographicPoint,MapNode>> iter = simpleTestMap.pointNodeMap.entrySet().iterator();
+        //so we can iterate through our objects hashmap of geo locations, and print all the mapNodes at those locatios
+        while(iter.hasNext()) {
+            //working
+            System.out.println(iter.next().getValue().getNeighbors());
+        }
+
 
         System.out.println(simpleTestMap.tspPath(tsp,testStart));   //so far, print statements inside function
 
